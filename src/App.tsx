@@ -16,7 +16,7 @@ import {
 
 import { SortableItem } from "./SortableItem";
 
-function App() {
+export default () => {
   const [items, setItems] = useState([1, 2, 3]);
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -24,6 +24,19 @@ function App() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.indexOf(active.id);
+        const newIndex = items.indexOf(over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   console.log("items----->", items);
 
@@ -51,19 +64,4 @@ function App() {
       </SortableContext>
     </DndContext>
   );
-
-  function handleDragEnd(event: any) {
-    const { active, over } = event;
-
-    if (active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  }
-}
-
-export default App;
+};
