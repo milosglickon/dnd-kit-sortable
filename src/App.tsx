@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { findIndex } from "lodash";
 import {
   DndContext,
   closestCenter,
@@ -16,8 +17,19 @@ import {
 
 import { SortableItem } from "./SortableItem";
 
+const questions = [
+  { type: 0, en: "", it: "" },
+  { type: 0, en: "", it: "" },
+  { type: 0, en: "", it: "" },
+];
+
+type PropsType = {
+  questions: { type: number; en: string; it: "" }[];
+};
+
+const data = questions.map((q, index) => ({ ...q, id: index + 1 }));
 export default () => {
-  const [items, setItems] = useState([1, 2, 3]);
+  const [items, setItems] = useState(data);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -27,12 +39,17 @@ export default () => {
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
+    console.log("active----->", active);
+    console.log("over----->", over);
 
     if (active.id !== over.id) {
+      const oldItem = items.find((item) => item.id === active.id);
+      const newItem = items.find((item) => item.id === over.id);
+      //@ts-ignore
+      const oldIndex = findIndex(items, (item) => item.id === oldItem.id);
+      //@ts-ignore
+      const newIndex = findIndex(items, (item) => item.id === newItem.id);
       setItems((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -47,8 +64,8 @@ export default () => {
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        {items.map((id) => (
-          <SortableItem key={id} id={id}>
+        {items.map((item) => (
+          <SortableItem key={item.id} id={item.id}>
             <div
               style={{
                 border: "1px solid gray",
@@ -58,7 +75,7 @@ export default () => {
                 marginTop: "3px",
                 cursor: "pointer",
               }}
-            >{`item-${id}`}</div>
+            >{`item-${item.id}`}</div>
           </SortableItem>
         ))}
       </SortableContext>
